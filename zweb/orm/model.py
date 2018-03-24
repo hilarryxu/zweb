@@ -165,7 +165,7 @@ class Model(object):
         last_id = self._db.insert(query, *values)
 
         if pk_val is None:
-            self.pk = last_id
+            setattr(self, pk_name, last_id)
 
     def _update(self):
         opts = self._meta
