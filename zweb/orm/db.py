@@ -92,17 +92,6 @@ class SqliteDB(DB):
 def dburl2dict(url):
     """
     Takes a URL to a database and parses it into an equivalent dictionary.
-
-        >>> dburl2dict('postgres:///mygreatdb')
-        {'pw': None, 'dbn': 'postgres', 'db': 'mygreatdb', 'host': None, 'user': None, 'port': None}
-        >>> dburl2dict('postgres://james:day@serverfarm.example.net:5432/mygreatdb')
-        {'pw': 'day', 'dbn': 'postgres', 'db': 'mygreatdb', 'host': 'serverfarm.example.net', 'user': 'james', 'port': 5432}
-        >>> dburl2dict('postgres://james:day@serverfarm.example.net/mygreatdb')
-        {'pw': 'day', 'dbn': 'postgres', 'db': 'mygreatdb', 'host': 'serverfarm.example.net', 'user': 'james', 'port': None}
-        >>> dburl2dict('postgres://james:d%40y@serverfarm.example.net/mygreatdb')
-        {'pw': 'd@y', 'dbn': 'postgres', 'db': 'mygreatdb', 'host': 'serverfarm.example.net', 'user': 'james', 'port': None}
-        >>> dburl2dict('mysql://james:d%40y@serverfarm.example.net/mygreatdb')
-        {'pw': 'd@y', 'dbn': 'mysql', 'db': 'mygreatdb', 'host': 'serverfarm.example.net', 'user': 'james', 'port': None}
     """
     parts = urlparse.urlparse(urllib.unquote(url))
 
@@ -135,6 +124,4 @@ def register_database(name, clazz):
     _databases[name] = clazz
 
 
-#register_database('mysql', MySQLDB)
-#register_database('postgres', PostgresDB)
 register_database('sqlite', SqliteDB)

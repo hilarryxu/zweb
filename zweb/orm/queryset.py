@@ -112,7 +112,7 @@ class QuerySet(object):
             self._db.update(q, *values)
 
     def set_fields(self, fields):
-        self.query_type='SELECT %s' % fields
+        self.query_type = 'SELECT %s' % fields
 
     def set_limits(self, limit=None, offset=None):
         self.limit = []

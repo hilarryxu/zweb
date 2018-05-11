@@ -69,7 +69,8 @@ class Connection(object):
     We explicitly set the timezone to UTC and assume the character encoding to
     UTF-8 (can be changed) on all connections to avoid time zone and encoding errors.
 
-    The sql_mode parameter is set by default to "traditional", which "gives an error instead of a warning"
+    The sql_mode parameter is set by default to "traditional",
+    which "gives an error instead of a warning"
     (http://dev.mysql.com/doc/refman/5.0/en/server-sql-mode.html). However, it can be set to
     any other mode including blank (None) thereby explicitly clearing the SQL mode.
 
@@ -78,7 +79,7 @@ class Connection(object):
     """
     def __init__(self, host, database, user=None, password=None,
                  max_idle_time=7 * 3600, connect_timeout=0, debug=False,
-                 time_zone="+0:00", charset = "utf8", sql_mode="TRADITIONAL",
+                 time_zone="+0:00", charset="utf8", sql_mode="TRADITIONAL",
                  **kwargs):
         self.debug = debug
         self.host = host
@@ -234,8 +235,7 @@ class Connection(object):
         # you try to perform a query and it fails.  Protect against this
         # case by preemptively closing and reopening the connection
         # if it has been idle for too long (7 hours by default).
-        if (self._db is None or
-            (time.time() - self._last_use_time > self.max_idle_time)):
+        if (self._db is None or (time.time() - self._last_use_time > self.max_idle_time)):
             self.reconnect()
         self._last_use_time = time.time()
 
@@ -251,7 +251,7 @@ class Connection(object):
             if self.debug:
                 logger = logging.getLogger(logger_name)
                 logger.info(
-                     '%.2fms\t%s ;' % (
+                    '%.2fms\t%s ;' % (
                         1000 * (time.time() - begin_time),
                         query.strip() % tuple(map(debug_escape_string, parameters))
                     )
