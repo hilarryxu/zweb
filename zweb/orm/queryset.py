@@ -92,7 +92,7 @@ class QuerySet(object):
         update_set = []
         if args:
             update_set.append(args[0])
-            self.where_values = args[1:] + self.where_values
+            self.where_values = list(args[1:]) + self.where_values
         if kwds:
             update_set.append(
                 ','.join(
