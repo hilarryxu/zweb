@@ -11,6 +11,7 @@ class QuerySet(object):
         self.query_type = query_type
         self.order = ''
         self.limit = []
+        self.joins = ''
         self.where_params = []
         self.where_values = []
         self._result_cache = None
@@ -121,11 +122,16 @@ class QuerySet(object):
                 self.limit.append(offset)
             self.limit.append(limit)
 
+    def joins(self, joins):
+        self.joins = joins
+
     def _query(self):
         q = '%s FROM %s' % (
             self.query_type,
             self._db_table()
         )
+        if self.joins:
+            q += ' ' + self.joins
         where = self._build_where()
         if where:
             q += ' WHERE ' + where
@@ -139,7 +145,7 @@ class QuerySet(object):
         return self._db.query(q, *values)
 
     def column(self, column='*', limit=None, offset=None):
-        self.query_type = 'SELECT %s' % column
+        self.set_fields(column)
         self.set_limits(limit, offset)
         return self._query()
 
@@ -148,6 +154,27 @@ class QuerySet(object):
             obj = self.model(**row)
             obj.__dict__['_is_new'] = False
             yield obj
+
+    def first(self, column='*', limit=None, offset=None):
+        rows = self.column(column=column, limit=limit, offset=offset)
+        if not rows:
+            return None
+        return rows[0]
+
+    def last(self, column='*', limit=None, offset=None):
+        rows = self.column(column=column, limit=limit, offset=offset)
+        if not rows:
+            return None
+        return rows[-1]
+
+    def get(self, column='*'):
+        rows = self.column(column=column, limit=1)
+        if not rows:
+            return None
+        elif len(rows) > 1:
+            raise Exception("Multiple rows returned for Database.get() query")
+        else:
+            return rows[0]
 
     def _fetch_all(self):
         if self._result_cache is None:
