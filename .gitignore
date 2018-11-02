@@ -1,2 +1,6 @@
 *.pyc
 
+zweb.egg-info/
+dist/
+build/
+
