@@ -54,7 +54,8 @@ class _Model(type):
             cursor = db._cursor()
             try:
                 cursor.execute('SELECT * FROM %s LIMIT 1' % table_name, ())
-                new_class.add_to_class('_columns', map(itemgetter0, cursor.description))
+                new_class.add_to_class('_columns',
+                                       list(map(itemgetter0, cursor.description)))
             finally:
                 cursor.close()
 
