@@ -28,6 +28,7 @@ import logging
 import os
 import time
 
+from zweb._compat import PY2
 from .util import safestr, Row
 from .config import logger_name
 
@@ -270,12 +271,13 @@ if MySQLdb is not None:
     FLAG = MySQLdb.constants.FLAG
     CONVERSIONS = copy.copy(MySQLdb.converters.conversions)
 
-    field_types = [FIELD_TYPE.BLOB, FIELD_TYPE.STRING, FIELD_TYPE.VAR_STRING]
-    if 'VARCHAR' in vars(FIELD_TYPE):
-        field_types.append(FIELD_TYPE.VARCHAR)
+    if PY2:
+        field_types = [FIELD_TYPE.BLOB, FIELD_TYPE.STRING, FIELD_TYPE.VAR_STRING]
+        if 'VARCHAR' in vars(FIELD_TYPE):
+            field_types.append(FIELD_TYPE.VARCHAR)
 
-    for field_type in field_types:
-        CONVERSIONS[field_type] = [(FLAG.BINARY, str)] + CONVERSIONS[field_type]
+        for field_type in field_types:
+            CONVERSIONS[field_type] = [(FLAG.BINARY, str)] + CONVERSIONS[field_type]
 
     # Alias some common MySQL exceptions
     IntegrityError = MySQLdb.IntegrityError

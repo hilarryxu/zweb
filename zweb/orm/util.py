@@ -1,27 +1,14 @@
 # -*- coding: utf-8 -*-
 
+from tornado.escape import utf8, to_unicode
+
 
 def safeunicode(obj, encoding='utf-8'):
-    t = type(obj)
-    if t is unicode:
-        return obj
-    elif t is str:
-        return obj.decode(encoding)
-    elif t in [int, float, bool]:
-        return unicode(obj)
-    elif hasattr(obj, '__unicode__') or isinstance(obj, unicode):
-        return unicode(obj)
-    else:
-        return str(obj).decode(encoding)
+    return to_unicode(obj)
 
 
 def safestr(obj, encoding='utf-8'):
-    if isinstance(obj, unicode):
-        return obj.encode(encoding)
-    elif isinstance(obj, str):
-        return obj
-    else:
-        return str(obj)
+    return utf8(obj)
 
 
 class Row(dict):
