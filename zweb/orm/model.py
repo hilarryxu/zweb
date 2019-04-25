@@ -3,7 +3,9 @@
 
 import inspect
 
-from zweb._compat import with_metaclass, iteritems
+from zweb._compat import (
+    PY2, unicode_type, with_metaclass, iteritems
+)
 from .util import safestr, safeunicode
 from .config import db_by_table
 from .queryset import QuerySet, itemgetter0
@@ -96,12 +98,20 @@ class Model(with_metaclass(_Model)):
                 self._updated.add(name)
             else:
                 if value is not None:
-                    if isinstance(dc_value, unicode):
-                        value = safeunicode(value)
-                    elif isinstance(dc_value, str):
-                        value = safestr(value)
+                    if PY2:
+                        if isinstance(dc_value, unicode_type):
+                            value = safeunicode(value)
+                        elif isinstance(dc_value, str):
+                            value = safestr(value)
+                        else:
+                            value = type(dc_value)(value)
                     else:
-                        value = type(dc_value)(value)
+                        if isinstance(dc_value, bytes):
+                            pass
+                        elif isinstance(dc_value, unicode_type):
+                            value = safeunicode(value)
+                        else:
+                            value = type(dc_value)(value)
                 if dc_value != value:
                     self._updated.add(name)
             dc[name] = value
