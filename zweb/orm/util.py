@@ -1,14 +1,32 @@
 # -*- coding: utf-8 -*-
 
-from tornado.escape import utf8, to_unicode
+from zweb._compat import PY2, unicode_type
+
+_UTF8_TYPES = (bytes, type(None))
+_TO_UNICODE_TYPES = (unicode_type, type(None))
 
 
-def safeunicode(obj, encoding='utf-8'):
-    return to_unicode(obj)
+def safeunicode(value, encoding='utf-8'):
+    if isinstance(value, _TO_UNICODE_TYPES):
+        return value
+    if isinstance(value, bytes):
+        return value.decode(encoding)
+    return unicode_type(value)
 
 
-def safestr(obj, encoding='utf-8'):
-    return utf8(obj)
+def safestr(value, encoding='utf-8'):
+    # FIXME: mix native_str,to_basestring?
+    # Just for print, %, strnig.format
+    if value is None:
+        return value
+    if isinstance(value, bytes):
+        if PY2:
+            return value
+        else:
+            return value.decode(encoding)
+    if isinstance(value, unicode_type):
+        return value.encode(encoding)
+    return str(value)
 
 
 class Row(dict):

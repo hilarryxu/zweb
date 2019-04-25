@@ -7,6 +7,9 @@ _identity = lambda x: x
 
 
 if not PY2:
+    unicode_type = str
+    basestring_type = str
+
     text_type = str
     string_types = (str,)
     integer_types = (int,)
@@ -26,6 +29,9 @@ if not PY2:
     implements_to_string = _identity
 
 else:
+    unicode_type = unicode  # noqa
+    basestring_type = basestring  # noqa
+
     text_type = unicode
     string_types = (str, unicode)
     integer_types = (int, long)
