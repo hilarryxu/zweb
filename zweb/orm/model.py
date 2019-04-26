@@ -3,6 +3,9 @@
 
 import inspect
 
+from zweb._compat import (
+    PY2, unicode_type, with_metaclass, iteritems
+)
 from .util import safestr, safeunicode
 from .config import db_by_table
 from .queryset import QuerySet, itemgetter0
@@ -12,6 +15,9 @@ missing = object()
 
 class _Model(type):
     def __new__(cls, name, bases, attrs):
+        if name == 'Model':
+            return super(_Model, cls).__new__(cls, name, bases, attrs)
+
         base0 = bases[0]
         if base0 is object:
             # If cls is Model, not handle it.
@@ -50,7 +56,8 @@ class _Model(type):
             cursor = db._cursor()
             try:
                 cursor.execute('SELECT * FROM %s LIMIT 1' % table_name, ())
-                new_class.add_to_class('_columns', map(itemgetter0, cursor.description))
+                new_class.add_to_class('_columns',
+                                       list(map(itemgetter0, cursor.description)))
             finally:
                 cursor.close()
 
@@ -70,15 +77,13 @@ class _Model(type):
         cls.add_to_class('objects', manager)
 
 
-class Model(object):
-    __metaclass__ = _Model
-
+class Model(with_metaclass(_Model)):
     class Meta(object):
         _model_cls_name = 'Model'
 
     def __init__(self, **kwargs):
         self.__dict__['_is_new'] = True
-        for k, v in kwargs.iteritems():
+        for k, v in iteritems(kwargs):
             self.__dict__[k] = v
         self.__dict__['_updated'] = set()
 
@@ -93,12 +98,20 @@ class Model(object):
                 self._updated.add(name)
             else:
                 if value is not None:
-                    if isinstance(dc_value, unicode):
-                        value = safeunicode(value)
-                    elif isinstance(dc_value, str):
-                        value = safestr(value)
+                    if PY2:
+                        if isinstance(dc_value, unicode_type):
+                            value = safeunicode(value)
+                        elif isinstance(dc_value, str):
+                            value = safestr(value)
+                        else:
+                            value = type(dc_value)(value)
                     else:
-                        value = type(dc_value)(value)
+                        if isinstance(dc_value, bytes):
+                            pass
+                        elif isinstance(dc_value, unicode_type):
+                            value = safeunicode(value)
+                        else:
+                            value = type(dc_value)(value)
                 if dc_value != value:
                     self._updated.add(name)
             dc[name] = value
@@ -217,7 +230,7 @@ class Manager(object):
         defaults = kwargs.pop('defaults', {})
         ins = self.get(**kwargs)
         if ins is None:
-            params = dict([(k, v) for k, v in kwargs.iteritems() if '__' not in k])
+            params = dict([(k, v) for k, v in iteritems(kwargs) if '__' not in k])
             params.update(defaults)
             ins = self.model(**params)
             if _save:

@@ -1,27 +1,32 @@
 # -*- coding: utf-8 -*-
 
+from zweb._compat import PY2, unicode_type
 
-def safeunicode(obj, encoding='utf-8'):
-    t = type(obj)
-    if t is unicode:
-        return obj
-    elif t is str:
-        return obj.decode(encoding)
-    elif t in [int, float, bool]:
-        return unicode(obj)
-    elif hasattr(obj, '__unicode__') or isinstance(obj, unicode):
-        return unicode(obj)
-    else:
-        return str(obj).decode(encoding)
+_UTF8_TYPES = (bytes, type(None))
+_TO_UNICODE_TYPES = (unicode_type, type(None))
 
 
-def safestr(obj, encoding='utf-8'):
-    if isinstance(obj, unicode):
-        return obj.encode(encoding)
-    elif isinstance(obj, str):
-        return obj
-    else:
-        return str(obj)
+def safeunicode(value, encoding='utf-8'):
+    if isinstance(value, _TO_UNICODE_TYPES):
+        return value
+    if isinstance(value, bytes):
+        return value.decode(encoding)
+    return unicode_type(value)
+
+
+def safestr(value, encoding='utf-8'):
+    # FIXME: mix native_str,to_basestring?
+    # Just for print, %, strnig.format
+    if value is None:
+        return value
+    if isinstance(value, bytes):
+        if PY2:
+            return value
+        else:
+            return value.decode(encoding)
+    if isinstance(value, unicode_type):
+        return value.encode(encoding)
+    return str(value)
 
 
 class Row(dict):

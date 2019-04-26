@@ -2,6 +2,8 @@
 
 from operator import itemgetter
 
+from zweb._compat import iteritems
+
 itemgetter0 = itemgetter(0)
 
 
@@ -29,7 +31,7 @@ class QuerySet(object):
             self.where_params.append(args[0])
             self.where_values.extend(args[1:])
 
-        for k, v in kwargs.iteritems():
+        for k, v in iteritems(kwargs):
             if v is None:
                 self.where_params.append('`%s` is NULL' % k)
             else:
