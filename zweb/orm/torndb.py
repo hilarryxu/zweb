@@ -29,7 +29,7 @@ import os
 import time
 
 from zweb._compat import PY2
-from .util import safestr, Row
+from .util import native_str, Row
 from .config import logger_name
 
 try:
@@ -51,7 +51,7 @@ version_info = (0, 3, 0, 0)
 
 
 def debug_escape_string(s):
-    return "'%s'" % escape_string(safestr(s))
+    return "'%s'" % native_str(escape_string(native_str(s)))
 
 
 class Connection(object):
